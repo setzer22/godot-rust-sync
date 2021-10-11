@@ -13,7 +13,6 @@ pub(crate) fn godot_sync_main(input: TokenStream) -> TokenStream {
     match item_struct.fields {
         syn::Fields::Named(named) => {
             for field in named.named.iter() {
-
                 let field_ident = field.ident.as_ref().expect("Only named fields supported");
 
                 for attr in field.attrs.iter() {
@@ -33,7 +32,7 @@ pub(crate) fn godot_sync_main(input: TokenStream) -> TokenStream {
                         }));
                     } else if attr.path.is_ident("get_node") || attr.path.is_ident("find_node") {
                         let ref_type = unwrap_option_ref(field.ty.clone())
-                            .expect("Root scene should have Option<Ref<T>> as type");
+                            .expect("fields using get_node should have Option<Ref<T>> as type");
 
                         let node_path = attr
                             .parse_args::<syn::LitStr>()
@@ -50,8 +49,9 @@ pub(crate) fn godot_sync_main(input: TokenStream) -> TokenStream {
                             },
                         }));
                     } else if attr.path.is_ident("get_instance") || attr.path.is_ident("find_instance") {
-                        let instance_type = unwrap_option_ref(field.ty.clone())
-                            .expect("Root scene should have Option<Ref<T>> as type");
+                        let instance_type = unwrap_option_instance(field.ty.clone())
+                            .expect("fields using get_instance should have Option<Instance<T>> as type");
+
                         let (owner_type, node_path) = parse_type_string_pair(attr).expect(
                             "get_instance / find_instance require two arguments: The owner type and the path. \
                              Example #[get_instance(Spatial, \"The/Node/Path\")",
@@ -66,10 +66,7 @@ pub(crate) fn godot_sync_main(input: TokenStream) -> TokenStream {
                                 GetChildKind::Get
                             } else {
                                 GetChildKind::Find
-                            }
-
-
-
+                            },
                         }))
                     }
                 }

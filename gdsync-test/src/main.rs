@@ -9,7 +9,7 @@ pub struct MyPlayer {
     foo: Option<Ref<Foo>>,
 
     #[get_instance(MySuperType, "MyNode/MyInstance")]
-    foo: Option<Ref<Bar>>,
+    bar: Option<Instance<Bar>>,
 }
 
 pub fn main() {}

@@ -27,6 +27,10 @@ pub fn unwrap_option_ref(ty: Type) -> Option<Type> {
     Some(Some(ty).and_then(|ty| unwrap_generic(ty, "Option")).and_then(|ty| unwrap_generic(ty, "Ref"))?)
 }
 
+pub fn unwrap_option_instance(ty: Type) -> Option<Type> {
+    Some(Some(ty).and_then(|ty| unwrap_generic(ty, "Option")).and_then(|ty| unwrap_generic(ty, "Instance"))?)
+}
+
 /// Returns the identifier for a plain type, e.g. `Node`, or None otherwise
 pub fn type_ident(ty: Type) -> Option<syn::Ident> {
     if let Type::Path(ref typepath) = ty {
