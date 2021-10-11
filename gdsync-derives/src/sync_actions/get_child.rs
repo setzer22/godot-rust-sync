@@ -1,7 +1,8 @@
 use crate::prelude::*;
 
 pub enum GetChildKind {
-    Get, Find,
+    Get,
+    Find,
 }
 
 pub struct GetChild {
@@ -20,8 +21,8 @@ impl ToGodotSyncCode for GetChild {
         let type_name = quote! { #ref_type }.to_string();
 
         let get_fn = match self.get_kind {
-            GetChildKind::Get => quote!{get_node},
-            GetChildKind::Find => quote!{find_node},
+            GetChildKind::Get => quote! {get_node},
+            GetChildKind::Find => quote! {find_node},
         };
 
         quote! {

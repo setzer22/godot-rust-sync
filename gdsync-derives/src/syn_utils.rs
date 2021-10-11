@@ -1,10 +1,11 @@
+use syn::parse::Parser;
+
 use crate::prelude::*;
 
 // Given a type like Option<T>, returns T, None otherwise
 pub fn unwrap_generic(ty: Type, wrapper_type_is: &str) -> Option<Type> {
     if let Type::Path(ref typepath) = ty {
         let path = &typepath.path;
-
 
         let first = path.segments.iter().next()?;
 
@@ -47,4 +48,35 @@ fn test_unwrap_type() {
         .expect("Could unwrap");
 
     assert_eq!(inner.to_string(), "Node")
+}
+
+/// Parses the contents of an attribute of the form #[foo(A, "B")]. Returns (A, "B")
+pub fn parse_type_string_pair(attr: &Attribute) -> Option<(syn::Ident, syn::LitStr)> {
+    let args = attr.parse_args::<TokenStream2>().unwrap();
+
+    let parser = syn::punctuated::Punctuated::<Expr, Token![,]>::parse_separated_nonempty;
+    let punct = parser.parse2(args).ok()?;
+    let mut it = punct.iter();
+
+    let ident = match it.next()? {
+        Expr::Path(ExprPath { path: Path { segments, .. }, .. }) => &segments.first()?.ident,
+        _ => return None,
+    };
+
+    let string = match it.next()? {
+        Expr::Lit(ExprLit { lit: Lit::Str(lit_str), .. }) => lit_str,
+        _ => return None,
+    };
+
+    Some((ident.clone(), string.clone()))
+}
+
+#[test]
+fn test_parse_attrs() {
+    let parser = Attribute::parse_outer;
+    let attrs = parser.parse2(quote! { #[get_instance(Position3D, "RibbonTrail")] }).expect("Could parse");
+
+    let (ident, string) = parse_type_string_pair(&attrs[0]).unwrap();
+    assert_eq!(ident.to_string(), "Position3D");
+    assert_eq!(string.value(), "RibbonTrail")
 }

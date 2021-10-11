@@ -2,9 +2,9 @@ use crate::prelude::*;
 
 /// Trait implemented by every GodotSyncAction to generate the code that should be added to each of the
 /// generated methods on the resulting impl block.
-/// 
+///
 /// Given a list of sync actions, the generate code would look like this:
-/// 
+///
 /// impl GodotSync for MyStructFoo {
 ///     pub fn on_ready() {
 ///         action_1.on_ready();

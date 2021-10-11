@@ -1,6 +1,5 @@
 pub use crate::prelude::*;
 
-
 pub(crate) fn godot_sync_main(input: TokenStream) -> TokenStream {
     let item_struct = match syn::parse::<syn::ItemStruct>(input) {
         Ok(str) => str,
@@ -47,6 +46,13 @@ pub(crate) fn godot_sync_main(input: TokenStream) -> TokenStream {
                                 GetChildKind::Find
                             },
                         }));
+                    } else if attr.path.is_ident("get_instance") || attr.path.is_ident("find_instance") {
+                        let instance_type = unwrap_option_ref(field.ty.clone())
+                            .expect("Root scene should have Option<Ref<T>> as type");
+                        let (owner_type, node_path) = parse_type_string_pair(attr).expect(
+                            "get_instance / find_instance require two arguments: The owner type and the path. \
+                             Example #[get_instance(Spatial, \"The/Node/Path\")",
+                        );
                     }
                 }
             }
