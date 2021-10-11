@@ -7,3 +7,6 @@ pub use root_scene::*;
 
 pub mod get_child;
 pub use get_child::*;
+
+pub mod get_instance;
+pub use get_instance::*;

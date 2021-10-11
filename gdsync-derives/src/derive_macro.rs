@@ -13,6 +13,9 @@ pub(crate) fn godot_sync_main(input: TokenStream) -> TokenStream {
     match item_struct.fields {
         syn::Fields::Named(named) => {
             for field in named.named.iter() {
+
+                let field_ident = field.ident.as_ref().expect("Only named fields supported");
+
                 for attr in field.attrs.iter() {
                     if attr.path.is_ident("root_scene") {
                         let ref_type = unwrap_option_ref(field.ty.clone())
@@ -24,7 +27,7 @@ pub(crate) fn godot_sync_main(input: TokenStream) -> TokenStream {
                             .value();
 
                         godot_sync_actions.push(Box::new(RootScene {
-                            field: field.ident.as_ref().expect("Only named fields supported").clone(),
+                            field: field_ident.clone(),
                             ref_type,
                             scene_path,
                         }));
@@ -37,7 +40,7 @@ pub(crate) fn godot_sync_main(input: TokenStream) -> TokenStream {
                             .expect("root_scene attribute requires a single scene as argument");
 
                         godot_sync_actions.push(Box::new(GetChild {
-                            field: field.ident.as_ref().expect("Only named fields supported").clone(),
+                            field: field_ident.clone(),
                             ref_type,
                             path: node_path,
                             get_kind: if attr.path.is_ident("get_node") {
@@ -53,6 +56,21 @@ pub(crate) fn godot_sync_main(input: TokenStream) -> TokenStream {
                             "get_instance / find_instance require two arguments: The owner type and the path. \
                              Example #[get_instance(Spatial, \"The/Node/Path\")",
                         );
+
+                        godot_sync_actions.push(Box::new(GetInstance {
+                            field: field_ident.clone(),
+                            path: node_path,
+                            owner_type,
+                            instance_type,
+                            get_kind: if attr.path.is_ident("get_instance") {
+                                GetChildKind::Get
+                            } else {
+                                GetChildKind::Find
+                            }
+
+
+
+                        }))
                     }
                 }
             }
