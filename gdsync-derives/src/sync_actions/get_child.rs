@@ -26,13 +26,14 @@ impl ToGodotSyncCode for GetChild {
 
         quote! {
             unsafe {
-                let node = self.node.assume_safe();
-                self.#field = node.#get_fn(#path)
+                // TODO: `node` name is hardcoded. Use the detected #[root_scene]!!
+                let node = self.node.expect("Root scene node instanced").assume_safe();
+                self.#field = Some(node.#get_fn(#path)
                     .expect(concat!("Child ", #field_name, " not found at ", #path))
                     .assume_safe()
                     .cast::<#ref_type>()
                     .expect(concat!("Child ", #field_name, " at ", #path, " could not be cast to ", #type_name))
-                    .claim();
+                    .claim());
             }
         }
     }
