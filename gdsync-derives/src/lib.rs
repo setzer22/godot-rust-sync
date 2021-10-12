@@ -3,7 +3,7 @@ mod prelude;
 mod syn_utils;
 mod sync_actions;
 
-#[proc_macro_derive(GodotSync, attributes(root_scene, get_node, find_node, get_instance, find_instance))]
+#[proc_macro_derive(GodotSync, attributes(root_scene, get_node, find_node, get_instance, find_instance, root_node))]
 pub fn godot_sync(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     derive_macro::godot_sync_main(input)
 }

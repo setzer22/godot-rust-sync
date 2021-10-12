@@ -40,4 +40,6 @@ impl ToGodotSyncCode for RootScene {
     fn start_frame(&self) -> TokenStream2 { TokenStream2::new() }
 
     fn end_frame(&self) -> TokenStream2 { TokenStream2::new() }
+
+    fn standalone_fns(&self) -> TokenStream2 { TokenStream2::new() }
 }

@@ -30,6 +30,14 @@ pub(crate) fn godot_sync_main(input: TokenStream) -> TokenStream {
                             ref_type,
                             scene_path,
                         }));
+                    } else if attr.path.is_ident("root_node") {
+                        let ref_type = unwrap_option_ref(field.ty.clone())
+                            .expect("Root scene should have Option<Ref<T>> as type");
+
+                        godot_sync_actions.push(Box::new(RootNode {
+                            field: field_ident.clone(),
+                            ref_type,
+                        }));
                     } else if attr.path.is_ident("get_node") || attr.path.is_ident("find_node") {
                         let ref_type = unwrap_option_ref(field.ty.clone())
                             .expect("fields using get_node should have Option<Ref<T>> as type");
@@ -78,6 +86,7 @@ pub(crate) fn godot_sync_main(input: TokenStream) -> TokenStream {
     let on_ready_code: Vec<TokenStream2> = godot_sync_actions.iter().map(|x| x.on_ready()).collect();
     let start_frame_code: Vec<TokenStream2> = godot_sync_actions.iter().map(|x| x.start_frame()).collect();
     let end_frame_code: Vec<TokenStream2> = godot_sync_actions.iter().map(|x| x.end_frame()).collect();
+    let standalone_fns_code: Vec<TokenStream2> = godot_sync_actions.iter().map(|x| x.standalone_fns()).collect();
 
     let output = quote! {
         impl #ident {
@@ -92,6 +101,8 @@ pub(crate) fn godot_sync_main(input: TokenStream) -> TokenStream {
             fn end_frame(&mut self) {
                 #(#end_frame_code)*
             }
+
+            #(#standalone_fns_code)*
         }
     };
 

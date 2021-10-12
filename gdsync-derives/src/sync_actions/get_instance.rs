@@ -19,15 +19,15 @@ impl ToGodotSyncCode for GetInstance {
         let owner_type_name = quote! { #owner_type }.to_string();
 
         let get_fn = match self.get_kind {
-            GetChildKind::Get => quote! {get_node},
-            GetChildKind::Find => quote! {find_node},
+            GetChildKind::Get => quote! {get_node(#path)},
+            GetChildKind::Find => quote! {find_node(#path, true, true)},
         };
 
         quote! {
             unsafe {
                 // TODO: `node` name is hardcoded. Use the detected #[root_scene]!!
                 let node = self.node.expect("Root scene node instanced").assume_safe();
-                self.#field = Some(node.#get_fn(#path)
+                self.#field = Some(node.#get_fn
                     .expect(concat!("Child ", #field_name, " not found at ", #path))
                     .assume_safe()
                     .cast::<#owner_type>()
@@ -44,6 +44,9 @@ impl ToGodotSyncCode for GetInstance {
     }
 
     fn end_frame(&self) -> TokenStream2 {
+        quote! {}
+    }
+    fn standalone_fns(&self) -> TokenStream2 {
         quote! {}
     }
 }

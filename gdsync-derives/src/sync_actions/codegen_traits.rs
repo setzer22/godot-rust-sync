@@ -26,4 +26,5 @@ pub trait ToGodotSyncCode {
     fn on_ready(&self) -> TokenStream2;
     fn start_frame(&self) -> TokenStream2;
     fn end_frame(&self) -> TokenStream2;
+    fn standalone_fns(&self) -> TokenStream2;
 }
